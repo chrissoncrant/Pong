@@ -3,16 +3,16 @@ const { body } = document;
 const canvas = document.createElement('canvas');
 const ctx = canvas.getContext('2d');
 
-console.log(ctx)
-
 const white = "#ecebeb";
 const width = 500;
 const height = 700;
 const screenWidth = window.screen.width;
+//canvasPosition is the x = 0 point of the canvas relative to the screen width
 const canvasPosition = screenWidth / 2 - width / 2;
 const isMobile = window.matchMedia('(max-width: 600px)');
 const gameOverEl = document.createElement('div');
-console.log(isMobile)
+
+console.log(window.outerWidth)
 
 //Paddle
 const paddleHeight = 10;
@@ -94,4 +94,112 @@ function createCanvas() {
     renderCanvas();
 }
 
-createCanvas();
+function ballReset() {
+    ballX = width / 2;
+    ballY = height / 2 - 100;
+    speedY = -3;
+    paddleContact = false;
+}
+
+function ballMove() {
+    //Vertical Speed:
+    ballY += -speedY;
+    //Horizontal Speed:
+    ballX += speedX;
+}
+
+function ballBoundaries() {
+    //Bounce off left wall:
+    if (ballX < 0 && speedX < 0) {
+        speedX = -speedX;
+    }
+
+    //Bounce off right wall:
+    if (ballX > width && speedX < 0) {
+        speedX = -speedX
+    }
+
+    //Bounce off player paddle:
+    if (ballY > height - paddleDiff) {
+        if (ballX > paddleBottomX && ballX < paddleBottomX + paddleWidth) {
+            paddleContact = true;
+            //Add speed on hit: 
+            if (playerMoved) {
+                speedY -= 1;
+                //Max speed:
+                if (speedY < -5) {
+                    speedY = -5;
+                    computerSpeed = 6;
+                }
+            }
+            speedY = -speedY;
+            trajectoryX = ballX - (paddleBottomX + paddleDiff);
+            speedX = trajectoryX * 0.3;
+        } else if (ballY > height) {
+            //Reset Ball, add point to computer:
+            ballReset();
+            computerScore++;
+        }
+    }
+    
+    //Bounce off computer's paddle:
+    if (ballY < paddleDiff) {
+        if (ballX > paddleTopX && ballX > paddleTopX + paddleWidth) {
+            //add speed on hit:
+            if (playerMoved) {
+                speedY += 1;
+                //Max speed:
+                if (speedY > 5) {
+                    speedY = 5;
+                }
+            }
+            speedY = -speedY;
+        } else if (ballX < 0) {
+            //Reset Ball and add to Player score:
+            ballReset();
+            playerScore++
+        }
+    }
+}
+
+function computerAI() {
+    if (playerMoved) {
+        if (paddleTopX + paddleDiff < ballX) {
+            paddleTopX += computerSpeed;
+        } else {
+            paddleTopX -= computerSpeed;
+        }
+    }
+}
+
+//Called every frame
+function animate() {
+    renderCanvas();
+    ballMove();
+    ballBoundaries();
+    //computerAI();
+}
+
+function startGame() {
+    playerScore = 0;
+    computerScore = 0;
+    ballReset();
+    createCanvas();
+    animate();
+    canvas.addEventListener('mousemove', e => {
+        playerMoved = true;
+        //We want to control the paddle from the middle of the paddle
+        paddleBottomX = e.clientX - canvasPosition - paddleDiff;
+        //sets the left boundary
+        if (paddleBottomX < paddleDiff) {
+            paddleBottomX = 0;
+        }
+        //sets the right boundary
+        if (paddleBottomX > width - paddleDiff) {
+            paddleBottomX = width - paddleDiff;
+        }
+    });
+    canvas.style.cursor = 'none';
+}
+
+startGame();

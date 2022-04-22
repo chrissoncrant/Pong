@@ -20,9 +20,11 @@ body {
     background-color: var(--black);
     display: flex;
     justify-content: center;
+    align-items: center;
+    height: 100vh;
 }
 
 canvas {
-    margin-top: 25px;
+    margin: auto;
     z-index: 10;
 }
