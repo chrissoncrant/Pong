@@ -1,0 +1,58 @@
+:root {
+    --black: black;
+}
+
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+* {
+    margin: 0;
+}
+
+html, body {
+    height: 100%;
+}
+
+body {
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+}
+
+img, picture, video, canvas, svg {
+    max-width: 100%;
+    height: auto;
+    display: block;
+}
+
+input, button, textarea, select {
+    font: inherit;
+}
+
+h1, h2, h3 {
+    line-height: 1.1;
+}
+
+h1, 
+h2,
+h3,
+h4,
+h5,
+h6,
+p {
+    overflow-wrap: break-word;
+    max-width: 65ch;
+}
+
+/* Not useful to me now, but will be when I start using React */
+/* 
+#root, #__next {
+    isolation: isolate;
+} */
+
+.bd {
+    border: 1px solid black;
+}
