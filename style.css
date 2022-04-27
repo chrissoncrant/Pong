@@ -28,3 +28,36 @@ canvas {
     margin: auto;
     z-index: 10;
 }
+
+button {
+    cursor: pointer;
+    background-color: var(--white);
+    border: none;
+    border-radius: 3px;
+    padding: 3px 10px;
+    display: block;
+    margin: 12px auto;
+}
+
+button:hover {
+    background-color: #d3d3d3;
+}
+
+#settings {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    color: var(--white);
+    margin: 20px 20px;
+}
+
+#game-over {
+    color: var(--white);
+    font-size: 24px;
+    text-align: center;
+}
+
+#game-over button {
+    padding: 10px 30px; 
+    font-size: 24px;
+}
