@@ -201,8 +201,6 @@ function animate() {
 }
 
 function showGameOverEl(winner) {
-    console.log('test');
-    console.log(playerScore, computerScore)
     const h1 = document.createElement('h1');
     const h2 = document.createElement('h2');
     const newGameBtn = document.createElement('button');
@@ -231,7 +229,7 @@ function delay(duration) {
 
 function gameOver() {
     if (playerScore === winningScore || computerScore === winningScore) {
-        delay(500);
+        delay(300);
         isGameOver = true;
         let winner = playerScore === winningScore ? 'Player' : 'Computer';
         console.log(winner);
@@ -259,7 +257,6 @@ function startGame() {
     ballReset();
     createCanvas();
     animate();
-    // setInterval(animate, 1000/60);
     canvas.addEventListener('mousemove', e => {
         playerMoved = true;
         // console.log(e.clientX);
