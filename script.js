@@ -12,7 +12,11 @@ const canvasPosition = screenWidth / 2 - width / 2;
 const isMobile = window.matchMedia('(max-width: 600px)');
 const gameOverEl = document.createElement('div');
 gameOverEl.setAttribute('id', 'game-over');
-const submit = document.getElementById('submit');
+const updateBtn = document.getElementById('update');
+const defaultBtn = document.getElementById('default');
+const rookieBtn = document.getElementById('rookie');
+const amateurBtn = document.getElementById('amateur');
+const proBtn = document.getElementById('pro');
 
 //Paddle
 const paddleHeight = 10;
@@ -35,13 +39,12 @@ let trajectoryX;
 let computerSpeed;
 let maxSpeed = 6;
 
-submit.addEventListener('click', () => {
-    const input = document.getElementById('max-speed');
-    if (Number(input.value) > 0) {
-        maxSpeed = Number(input.value);
-        ballReset();
-    }
-})
+//Score
+let playerScore = 0;
+let computerScore = 0;
+let winningScore = 7;
+let isGameOver = false;
+let isNewGame = true;
 
 //Change Mobile Settings
 if (isMobile.matches) {
@@ -54,12 +57,40 @@ if (isMobile.matches) {
     computerSpeed = 6;
 }
 
-//Score
-let playerScore = 0;
-let computerScore = 0;
-const winningScore = 1;
-let isGameOver = false;
-let isNewGame = true;
+updateBtn.addEventListener('click', () => {
+    const score = document.getElementById('winning-score');
+    const speed = document.getElementById('max-speed');
+    if (Number(score.value) > 0) {
+        winningScore = Number(score.value);
+        ballReset();
+    };
+    if (Number(speed.value) > 0) {
+        maxSpeed = Number(speed.value);
+        ballReset();
+    };
+});
+
+defaultBtn.addEventListener('click', () => {
+    winningScore = 7;
+    maxSpeed = 6;
+    computerSpeed = 6;
+    ballReset();
+});
+
+rookieBtn.addEventListener('click', () => {
+    computerSpeed = 5;
+    ballReset();
+});
+
+amateurBtn.addEventListener('click', () => {
+    computerSpeed = 6;
+    ballReset();
+});
+
+proBtn.addEventListener('click', () => {
+    computerSpeed = 7;
+    ballReset();
+});
 
 //Render Everything on Canvas:
 function renderCanvas() {
@@ -141,7 +172,6 @@ function ballBoundaries() {
             //Add speed on hit: 
             if (playerMoved) {
                 speedY -= 1;
-                console.log('y speed', speedY)
                 //Max speed:
                 if (speedY < -maxSpeed) {
                     speedY = -maxSpeed;
@@ -232,7 +262,6 @@ function gameOver() {
         delay(300);
         isGameOver = true;
         let winner = playerScore === winningScore ? 'Player' : 'Computer';
-        console.log(winner);
         showGameOverEl(winner);
     } else isGameOver = false;
 }

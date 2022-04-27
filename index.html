@@ -22,9 +22,24 @@
 <body>
     <div id="settings">
         <h3>Settings</h3>
-        <label for="max-speed">Max Ball Speed</label>
-        <input type="number" id="max-speed">
-        <button id="submit">Update</button>
+        <div class="settings-sub-container">
+            <label for="winning-score">Winning Score</label>
+            <input type="number" id="winning-score">
+        </div>
+        <div class="settings-sub-container">
+            <label for="max-speed">Max Ball Speed</label>
+            <input type="number" id="max-speed">
+        </div>
+        <label for="cpu-skill" id="cpu-skill-label">Computer Skill</label>
+        <div id="cpu-skill">
+            <button id="rookie">Rookie</button>
+            <button id="amateur">Amateur</button>
+            <button id="pro">Pro</button>
+        </div>
+        <div id="settings-btns-container">
+            <button id="update">Set</button>
+            <button id="default">Defaults</button>
+        </div>
     </div>
 </body>
 </html>

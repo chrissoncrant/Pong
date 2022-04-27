@@ -36,7 +36,7 @@ button {
     border-radius: 3px;
     padding: 3px 10px;
     display: block;
-    margin: 12px auto;
+    
 }
 
 button:hover {
@@ -49,6 +49,32 @@ button:hover {
     left: 10px;
     color: var(--white);
     margin: 20px 20px;
+    /* border: 1px solid green; */
+    width: 300px;
+    text-align:  center;
+}
+
+.settings-sub-container {
+    display: flex;
+    justify-content: space-between;
+    margin: 12px 0px;
+}
+
+#cpu-skill {
+    margin-bottom: 24px;
+}
+
+#cpu-skill button {
+    width: 93.3px;
+}
+
+#cpu-skill, #settings-btns-container {
+    display: flex;
+    justify-content: space-between;
+}
+
+#settings-btns-container button {
+    width: 145px;
 }
 
 #game-over {
@@ -60,4 +86,5 @@ button:hover {
 #game-over button {
     padding: 10px 30px; 
     font-size: 24px;
+    margin: 12px auto;
 }
