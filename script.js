@@ -17,6 +17,7 @@ const defaultBtn = document.getElementById('default');
 const rookieBtn = document.getElementById('rookie');
 const amateurBtn = document.getElementById('amateur');
 const proBtn = document.getElementById('pro');
+const pauseBtn = document.getElementById('pause');
 
 //Paddle
 const paddleHeight = 10;
@@ -46,6 +47,8 @@ let winningScore = 7;
 let isGameOver = false;
 let isNewGame = true;
 
+let pause = false;
+
 //Change Mobile Settings
 if (isMobile.matches) {
     speedY = -2;
@@ -62,6 +65,8 @@ updateBtn.addEventListener('click', () => {
     const speed = document.getElementById('max-speed');
     if (Number(score.value) > 0) {
         winningScore = Number(score.value);
+        playerScore = 0;
+        computerScore = 0;
         ballReset();
     };
     if (Number(speed.value) > 0) {
@@ -91,6 +96,13 @@ proBtn.addEventListener('click', () => {
     computerSpeed = 7;
     ballReset();
 });
+
+pauseBtn.addEventListener('click', () => {
+    if (pause) {
+        pause = false;
+        animate();
+    } else pause = true;
+})
 
 //Render Everything on Canvas:
 function renderCanvas() {
@@ -185,6 +197,7 @@ function ballBoundaries() {
             //Reset Ball, add point to computer:
             ballReset();
             computerScore++;
+            console.log(computerSpeed);
         }
     }
     
@@ -226,8 +239,11 @@ function animate() {
     computerAI();
     gameOver();
     if (!isGameOver) {
-        window.requestAnimationFrame(animate);
+        if (pause) {
+            cancelAnimationFrame(animate);
+        } else window.requestAnimationFrame(animate);
     }
+    
 }
 
 function showGameOverEl(winner) {

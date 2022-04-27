@@ -34,7 +34,7 @@ button {
     background-color: var(--white);
     border: none;
     border-radius: 3px;
-    padding: 3px 10px;
+    padding: 5px 10px;
     display: block;
     
 }
@@ -61,6 +61,7 @@ button:hover {
 }
 
 #cpu-skill {
+    margin-top: 8px;
     margin-bottom: 24px;
 }
 
@@ -75,6 +76,15 @@ button:hover {
 
 #settings-btns-container button {
     width: 145px;
+}
+
+hr {
+    margin-top: 24px;
+}
+
+#pause {
+    width: 100%;
+    margin-top: 24px;
 }
 
 #game-over {
