@@ -64,7 +64,7 @@ updateBtn.addEventListener('click', () => {
     const winScore = document.getElementById('winning-score');
     const speed = document.getElementById('max-speed');
     if (Number(winScore.value) > 0) {
-        winningScore = Number(score.value);
+        winningScore = Number(winScore.value);
         score[0] = 0;
         score[1] = 0;
         ballReset();
@@ -151,7 +151,6 @@ function ballReset() {
     ballX = width / 2;
     ballY = height / 2;
     speedY = 3;
-    console.log(score);
     if (ballDirection < 0) {
         ballDirection = -ballDirection;
     }
@@ -194,7 +193,6 @@ function ballBoundaries() {
                 }
             }
             ballDirection = -ballDirection;
-            console.log(speedY);
             trajectoryX[0] = ballX - (paddleX[0] + paddleDiff);
             speedX = trajectoryX[0] * 0.3;
         } else if (ballY > height) {
@@ -216,10 +214,8 @@ function ballBoundaries() {
                 }
             };
             ballDirection = -ballDirection;
-            console.log(speedX);
             trajectoryX[1] = ballX - (paddleX[1] + paddleDiff);
             speedX = trajectoryX[1] * 0.3;
-            console.log(speedX);
         } else if (ballY < 0) {
             ballDirection = -ballDirection;
             //Reset Ball and add to Player score:
@@ -303,7 +299,6 @@ function removeChildNodes(el) {
 
 function startGame() {
     if (isGameOver && !isNewGame) {
-        console.log('check')
         gameOverEl.hidden = true;
         removeChildNodes(gameOverEl);
         canvas.hidden = false;
