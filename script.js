@@ -23,8 +23,7 @@ const pauseBtn = document.getElementById('pause');
 const paddleHeight = 10;
 const paddleWidth = 50;
 const paddleDiff = 25;
-let paddleBottomX = 225;
-let paddleTopX = 225;
+let paddleX = [225, 225];
 let playerMoved = false;
 let paddleContact = false;
 
@@ -36,13 +35,13 @@ const ballRadius = 5;
 //Speed
 let speedY;
 let speedX;
-let trajectoryX;
+let ballDirection = 1; 
+let trajectoryX = [0, 0];
 let computerSpeed;
 let maxSpeed = 6;
 
 //Score
-let playerScore = 0;
-let computerScore = 0;
+let score = [0, 0];
 let winningScore = 7;
 let isGameOver = false;
 let isNewGame = true;
@@ -114,10 +113,10 @@ function renderCanvas() {
     ctx.fillStyle = white;
 
     //Player Paddle:
-    ctx.fillRect(paddleBottomX, height - 20, paddleWidth, paddleHeight);
+    ctx.fillRect(paddleX[0], height - 20, paddleWidth, paddleHeight);
 
     //Computer Paddle:
-    ctx.fillRect(paddleTopX, 10, paddleWidth, paddleHeight);
+    ctx.fillRect(paddleX[1], 10, paddleWidth, paddleHeight);
 
     //Dashed Center Line:
     ctx.beginPath();
@@ -135,8 +134,8 @@ function renderCanvas() {
 
     //Score: 
     ctx.font = '32px Courier New';
-    ctx.fillText(playerScore, 20, canvas.height / 2 + 50);
-    ctx.fillText(computerScore, 20, canvas.height / 2 - 32);
+    ctx.fillText(score[0], 20, canvas.height / 2 + 50);
+    ctx.fillText(score[1], 20, canvas.height / 2 - 32);
 }
 
 // Creating Canvas Element:
@@ -156,7 +155,7 @@ function ballReset() {
 
 function ballMove() {
     //Vertical Speed:
-    ballY += -speedY;
+    ballY += speedY * ballDirection;
     // console.log('ball X', ballX)
     
     //Horizontal Speed:
@@ -187,7 +186,6 @@ function ballBoundaries() {
                 //Max speed:
                 if (speedY < -maxSpeed) {
                     speedY = -maxSpeed;
-                    computerSpeed = 6;
                 }
             }
             speedY = -speedY;
