@@ -26,6 +26,7 @@ const paddleDiff = 25;
 let paddleX = [225, 225];
 let playerMoved = false;
 let paddleContact = false;
+let paddleIndex = 0;
 
 //Ball
 let ballX = 250;
@@ -54,18 +55,18 @@ if (isMobile.matches) {
     speedX = speedY;
     computerSpeed = 4;
 } else {
-    speedY = -1;
+    speedY = -2;
     speedX = speedY;
     computerSpeed = 6;
 }
 
 updateBtn.addEventListener('click', () => {
-    const score = document.getElementById('winning-score');
+    const winScore = document.getElementById('winning-score');
     const speed = document.getElementById('max-speed');
-    if (Number(score.value) > 0) {
+    if (Number(winScore.value) > 0) {
         winningScore = Number(score.value);
-        playerScore = 0;
-        computerScore = 0;
+        score[0] = 0;
+        score[1] = 0;
         ballReset();
     };
     if (Number(speed.value) > 0) {
@@ -149,7 +150,11 @@ function createCanvas() {
 function ballReset() {
     ballX = width / 2;
     ballY = height / 2;
-    speedY = -3;
+    speedY = 3;
+    console.log(score);
+    if (ballDirection < 0) {
+        ballDirection = -ballDirection;
+    }
     paddleContact = false;
 }
 
@@ -178,30 +183,30 @@ function ballBoundaries() {
 
     //Bounce off player paddle:
     if (ballY > height - paddleDiff) {
-        if (ballX >= paddleBottomX && ballX <= paddleBottomX + paddleWidth) {
+        if (ballX >= paddleX[0] && ballX <= paddleX[0] + paddleWidth) {
             paddleContact = true;
             //Add speed on hit: 
             if (playerMoved) {
-                speedY -= 1;
+                speedY += 1;
                 //Max speed:
-                if (speedY < -maxSpeed) {
-                    speedY = -maxSpeed;
+                if (speedY > maxSpeed) {
+                    speedY = maxSpeed;
                 }
             }
-            speedY = -speedY;
-            trajectoryX = ballX - (paddleBottomX + paddleDiff);
-            speedX = trajectoryX * 0.3;
+            ballDirection = -ballDirection;
+            console.log(speedY);
+            trajectoryX[0] = ballX - (paddleX[0] + paddleDiff);
+            speedX = trajectoryX[0] * 0.3;
         } else if (ballY > height) {
             //Reset Ball, add point to computer:
             ballReset();
-            computerScore++;
-            console.log(computerSpeed);
+            score[1]++;
         }
     }
     
     //Bounce off computer's paddle:
     if (ballY < paddleDiff) {
-        if (ballX > paddleTopX && ballX < paddleTopX + paddleWidth) {
+        if (ballX > paddleX[1] && ballX < paddleX[1] + paddleWidth) {
             //add speed on hit:
             if (playerMoved) {
                 speedY += 1;
@@ -210,21 +215,31 @@ function ballBoundaries() {
                     speedY = maxSpeed;
                 }
             };
-            speedY = -speedY;
+            ballDirection = -ballDirection;
+            console.log(speedX);
+            trajectoryX[1] = ballX - (paddleX[1] + paddleDiff);
+            speedX = trajectoryX[1] * 0.3;
+            console.log(speedX);
         } else if (ballY < 0) {
+            ballDirection = -ballDirection;
             //Reset Ball and add to Player score:
             ballReset();
-            playerScore++;
+            score[0]++;
         }
     }
 }
 
 function computerAI() {
     if (playerMoved) {
-        if (paddleTopX + paddleDiff < ballX) {
-            paddleTopX += computerSpeed;
-        } else if (paddleTopX + paddleDiff > ballX) {
-            paddleTopX -= computerSpeed;
+        if (paddleX[1] + paddleDiff < ballX) {
+            paddleX[1] += computerSpeed;
+        } else if (paddleX[1] + paddleDiff > ballX) {
+            paddleX[1] -= computerSpeed;
+        }
+        if (paddleX[1] < 0) {
+            paddleX[1] = 0;
+        } else if (paddleX[1] > width - paddleWidth){
+            paddleX[1] = width - paddleWidth;
         }
     }
 }
@@ -272,10 +287,10 @@ function delay(duration) {
 }
 
 function gameOver() {
-    if (playerScore === winningScore || computerScore === winningScore) {
+    if (score[0] === winningScore || score[1] === winningScore) {
         delay(300);
         isGameOver = true;
-        let winner = playerScore === winningScore ? 'Player' : 'Computer';
+        let winner = score[0] === winningScore ? 'Player' : 'Computer';
         showGameOverEl(winner);
     } else isGameOver = false;
 }
@@ -288,31 +303,35 @@ function removeChildNodes(el) {
 
 function startGame() {
     if (isGameOver && !isNewGame) {
+        console.log('check')
         gameOverEl.hidden = true;
         removeChildNodes(gameOverEl);
         canvas.hidden = false;
-        paddleBottomX = 225;
+        paddleX[0] = 225;
+        paddleX[1] = 225;
         isGameOver = false;
     }
-    playerScore = 0;
-    computerScore = 0;
+    score[0] = 0;
+    score[1] = 0;
     isNewGame = false;
     ballReset();
     createCanvas();
     animate();
+    // window.requestAnimationFrame(animate);
+    paddleIndex = 0;
     canvas.addEventListener('mousemove', e => {
         playerMoved = true;
         // console.log(e.clientX);
         // console.log(window.innerWidth);
         //We want to control the paddle from the middle of the paddle
-        paddleBottomX = e.clientX - canvasPosition - paddleDiff;
+        paddleX[paddleIndex] = e.clientX - canvasPosition - paddleDiff;
         //sets the left boundary
         if (e.clientX - canvasPosition < paddleDiff) {
-            paddleBottomX = 0;
+            paddleX[paddleIndex] = 0;
         }
         //sets the right boundary
-        if (paddleBottomX > width - paddleWidth) {
-            paddleBottomX = width - paddleWidth;
+        if (paddleX[paddleIndex] > width - paddleWidth) {
+            paddleX[paddleIndex] = width - paddleWidth;
         }
     });
     canvas.style.cursor = 'none';
