@@ -25,7 +25,6 @@ const paddleWidth = 50;
 const paddleDiff = 25;
 let paddleX = [225, 225];
 let playerMoved = false;
-let paddleContact = false;
 let paddleIndex = 0;
 
 //Ball
@@ -34,28 +33,28 @@ let ballY = 350;
 const ballRadius = 5;
 
 //Speed
-let speedY;
-let speedX;
+let speedY = 2;
+let speedX = 0;
 let ballDirection = 1; 
 let trajectoryX = [0, 0];
 let maxSpeed = 6;
 
 //Score
 let score = [0, 0];
-let winningScore = 7;
+let winningScore = 17;
 let isGameOver = false;
 let isNewGame = true;
 
 let pause = false;
 
 //Change Mobile Settings
-if (isMobile.matches) {
-    speedY = -2;
-    speedX = speedY;
-} else {
-    speedY = -2;
-    speedX = speedY;
-}
+// if (isMobile.matches) {
+//     speedY = -2;
+//     speedX = speedY;
+// } else {
+//     speedY = -2;
+//     speedX = speedY;
+// }
 
 updateBtn.addEventListener('click', () => {
     const winScore = document.getElementById('winning-score');
@@ -144,10 +143,16 @@ function ballReset() {
     ballX = width / 2;
     ballY = height / 2;
     speedY = 3;
+    speedX = 0;
     if (ballDirection < 0) {
         ballDirection = -ballDirection;
-    }
-    paddleContact = false;
+    };
+
+    socket.emit('ballMove', {
+        ballX,
+        ballY,
+        score
+     });
 }
 
 function ballMove() {
@@ -156,10 +161,16 @@ function ballMove() {
     // console.log('ball X', ballX)
     
     //Horizontal Speed:
-    if (playerMoved && paddleContact) {
+    if (playerMoved) {
         ballX += speedX;
         // console.log('ball X', ballX);
     }
+
+    socket.emit('ballMove', {
+       ballX,
+       ballY,
+       score
+    });
 }
 
 function ballBoundaries() {
@@ -176,7 +187,6 @@ function ballBoundaries() {
     //Bounce off player paddle:
     if (ballY > height - paddleDiff) {
         if (ballX >= paddleX[0] && ballX <= paddleX[0] + paddleWidth) {
-            paddleContact = true;
             //Add speed on hit: 
             if (playerMoved) {
                 speedY += 1;
@@ -191,6 +201,7 @@ function ballBoundaries() {
         } else if (ballY > height) {
             //Reset Ball, add point to computer:
             ballReset();
+            console.log(score);
             score[1]++;
         }
     }
@@ -220,16 +231,17 @@ function ballBoundaries() {
 
 //Called every frame
 function animate() {
+    if (isReferee) {
+        ballMove();
+        ballBoundaries();
+    };
     renderCanvas();
-    ballMove();
-    ballBoundaries();
     gameOver();
     if (!isGameOver) {
         if (pause) {
             cancelAnimationFrame(animate);
         } else window.requestAnimationFrame(animate);
-    }
-    
+    };
 }
 
 function showGameOverEl(winner) {
@@ -304,11 +316,15 @@ function startGame() {
         //sets the left boundary
         if (e.clientX - canvasPosition < paddleDiff) {
             paddleX[paddleIndex] = 0;
-        }
+        };
         //sets the right boundary
         if (paddleX[paddleIndex] > width - paddleWidth) {
             paddleX[paddleIndex] = width - paddleWidth;
-        }
+        };
+
+        socket.emit('paddleMove', {
+            xPosition: paddleX[paddleIndex],
+        })
     });
     canvas.style.cursor = 'none';
 };
@@ -323,4 +339,13 @@ socket.on('startGame', (refereeId) => {
     console.log('Referee ID: ', refereeId);
     isReferee = socket.id === refereeId;
     startGame();
-})
+});
+
+socket.on('paddleMove', (paddleData) => {
+    const opponentPaddleIndex = 1 - paddleIndex;
+    paddleX[opponentPaddleIndex] = paddleData.xPosition;
+});
+
+socket.on('ballMove', (ballData) => {
+    ({ ballX, ballY, score } = ballData);
+});
