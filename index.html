@@ -14,10 +14,9 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
     
     <!-- Favicon -->
-    <link rel="shortcut icon" href="images/Eyes.png?v=1.1" type="image/x-icon">
+    <!-- <link rel="shortcut icon" href="images/Eyes.png?v=1.1" type="image/x-icon"> -->
 
     <link href="style.css" rel="stylesheet" type="text/css">
-    <script src="script.js" defer></script>
 </head>
 <body>
     <div id="settings">
@@ -30,12 +29,6 @@
             <label for="max-speed">Max Ball Speed</label>
             <input type="number" id="max-speed">
         </div>
-        <label for="cpu-skill" id="cpu-skill-label">Computer Skill</label>
-        <div id="cpu-skill">
-            <button id="rookie">Rookie</button>
-            <button id="amateur">Amateur</button>
-            <button id="pro">Pro</button>
-        </div>
         <div id="settings-btns-container">
             <button id="update">Set</button>
             <button id="default">Defaults</button>
@@ -43,5 +36,7 @@
         <hr>
         <button id="pause">Pause</button>
     </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.5.0/socket.io.js" integrity="sha512-/xb5+PNOA079FJkngKI2jvID5lyiqdHXaUUcfmzE0X0BdpkgzIWHC59LOG90a2jDcOyRsd1luOr24UCCAG8NNw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="script.js"></script>
 </body>
 </html>

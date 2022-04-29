@@ -1,8 +1,11 @@
+// const { isContext } = require("vm");
+
 //Canvas
 const { body } = document;
 const canvas = document.createElement('canvas');
 const ctx = canvas.getContext('2d');
-
+const socket = io('http://localhost:3000');
+let isReferee = false;
 const white = "#ecebeb";
 const width = 500;
 const height = 700;
@@ -14,9 +17,6 @@ const gameOverEl = document.createElement('div');
 gameOverEl.setAttribute('id', 'game-over');
 const updateBtn = document.getElementById('update');
 const defaultBtn = document.getElementById('default');
-const rookieBtn = document.getElementById('rookie');
-const amateurBtn = document.getElementById('amateur');
-const proBtn = document.getElementById('pro');
 const pauseBtn = document.getElementById('pause');
 
 //Paddle
@@ -38,7 +38,6 @@ let speedY;
 let speedX;
 let ballDirection = 1; 
 let trajectoryX = [0, 0];
-let computerSpeed;
 let maxSpeed = 6;
 
 //Score
@@ -53,11 +52,9 @@ let pause = false;
 if (isMobile.matches) {
     speedY = -2;
     speedX = speedY;
-    computerSpeed = 4;
 } else {
     speedY = -2;
     speedX = speedY;
-    computerSpeed = 6;
 }
 
 updateBtn.addEventListener('click', () => {
@@ -78,22 +75,6 @@ updateBtn.addEventListener('click', () => {
 defaultBtn.addEventListener('click', () => {
     winningScore = 7;
     maxSpeed = 6;
-    computerSpeed = 6;
-    ballReset();
-});
-
-rookieBtn.addEventListener('click', () => {
-    computerSpeed = 5;
-    ballReset();
-});
-
-amateurBtn.addEventListener('click', () => {
-    computerSpeed = 6;
-    ballReset();
-});
-
-proBtn.addEventListener('click', () => {
-    computerSpeed = 7;
     ballReset();
 });
 
@@ -102,7 +83,19 @@ pauseBtn.addEventListener('click', () => {
         pause = false;
         animate();
     } else pause = true;
-})
+});
+
+//Wait for Opponents:
+function renderIntro() {
+    //Canvas Background
+    ctx.fillStyle = "black";
+    ctx.fillRect(0, 0, width, height);
+
+    //Intro Text
+    ctx.fillStyle = "white";
+    ctx.font = "32px Courier New";
+    ctx.fillText("Waiting for opponent...", 20, (canvas.height / 2) - 30);
+}
 
 //Render Everything on Canvas:
 function renderCanvas() {
@@ -225,27 +218,11 @@ function ballBoundaries() {
     }
 }
 
-function computerAI() {
-    if (playerMoved) {
-        if (paddleX[1] + paddleDiff < ballX) {
-            paddleX[1] += computerSpeed;
-        } else if (paddleX[1] + paddleDiff > ballX) {
-            paddleX[1] -= computerSpeed;
-        }
-        if (paddleX[1] < 0) {
-            paddleX[1] = 0;
-        } else if (paddleX[1] > width - paddleWidth){
-            paddleX[1] = width - paddleWidth;
-        }
-    }
-}
-
 //Called every frame
 function animate() {
     renderCanvas();
     ballMove();
     ballBoundaries();
-    computerAI();
     gameOver();
     if (!isGameOver) {
         if (pause) {
@@ -258,17 +235,16 @@ function animate() {
 function showGameOverEl(winner) {
     const h1 = document.createElement('h1');
     const h2 = document.createElement('h2');
+    h2.textContent = 'Are you ready to rock again?'
     const newGameBtn = document.createElement('button');
 
     newGameBtn.textContent = 'New Game';
     newGameBtn.addEventListener('click', startGame);
 
-    if (winner === 'Player') {
-        h1.textContent = 'You Win!';
-        h2.textContent = 'Are you ready to rock again?'
+    if (winner === 'Player1') {
+        h1.textContent = 'Player 1 Wins!';      
     } else {
-        h1.textContent = 'You Lose!';
-        h2.textContent = 'Game over man... Game over!'
+        h1.textContent = 'Player 2 Wins!';
     };
 
     gameOverEl.append(h1, h2, newGameBtn);
@@ -286,7 +262,7 @@ function gameOver() {
     if (score[0] === winningScore || score[1] === winningScore) {
         delay(300);
         isGameOver = true;
-        let winner = score[0] === winningScore ? 'Player' : 'Computer';
+        let winner = score[0] === winningScore ? 'Player1' : 'Player2';
         showGameOverEl(winner);
     } else isGameOver = false;
 }
@@ -295,6 +271,12 @@ function removeChildNodes(el) {
     while(el.firstChild) {
         el.removeChild(el.firstChild);
     }
+}
+
+function onLoad() {
+    createCanvas();
+    renderIntro();
+    socket.emit('ready');
 }
 
 function startGame() {
@@ -310,10 +292,9 @@ function startGame() {
     score[1] = 0;
     isNewGame = false;
     ballReset();
-    createCanvas();
     animate();
     // window.requestAnimationFrame(animate);
-    paddleIndex = 0;
+    paddleIndex = isReferee ? 0 : 1;
     canvas.addEventListener('mousemove', e => {
         playerMoved = true;
         // console.log(e.clientX);
@@ -330,6 +311,16 @@ function startGame() {
         }
     });
     canvas.style.cursor = 'none';
-}
+};
 
-startGame();
+onLoad();
+
+socket.on('connect', () => {
+    console.log(`Connected as ${socket.id}`)
+});
+
+socket.on('startGame', (refereeId) => {
+    console.log('Referee ID: ', refereeId);
+    isReferee = socket.id === refereeId;
+    startGame();
+})
