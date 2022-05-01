@@ -4,10 +4,14 @@ function listen(io) {
     io.on('connection', (socket) => {
         console.log(`user connected as ${socket.id}`);
     
-        socket.on('ready', () => {
-            console.log('Player ready', socket.id);
+        socket.on('ready', (obj) => {
             readyPlayerCount++;
-            if (readyPlayerCount % 2) {
+            console.log(`Player ${readyPlayerCount} ready`, socket.id);
+            if ((readyPlayerCount % 2) && obj.replay) {
+                console.log('test');
+                socket.broadcast.emit('playerReady');
+            };
+            if (!(readyPlayerCount % 2)) {
                 io.emit('startGame', socket.id);
             };
         });
@@ -26,7 +30,6 @@ function listen(io) {
     
         socket.on('disconnect', (reason) => {
             console.log(`Client ${socket.id} disconnected due to ${reason}`);
-            readyPlayerCount--;
         });
     });
 } 

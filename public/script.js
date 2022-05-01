@@ -41,7 +41,7 @@ let maxSpeed = 6;
 
 //Score
 let score = [0, 0];
-let winningScore = 2;
+let winningScore = 1;
 let isGameOver = false;
 let isNewGame = true;
 
@@ -233,14 +233,14 @@ function animate() {
     if (isReferee) {
         ballMove();
         ballBoundaries();
+        gameOver();
+        
     };
     renderCanvas();
-    gameOver();
     if (!isGameOver) {
-        if (pause) {
-            cancelAnimationFrame(animate);
-        } else window.requestAnimationFrame(animate);
+        window.requestAnimationFrame(animate);
     };
+    
 }
 
 function addNameDisplay() {
@@ -254,14 +254,27 @@ function addNameDisplay() {
     };
 }
 
+function playerReadyForNewGameDisplay() {
+    const playerReady = document.createElement('h4');
+    if (isReferee) {
+        playerReady.textContent = "Player 1 is ready for a new game!"
+    } else playerReady.textContent = "Player 2 is ready for a new game!";
+    console.log('Biggie');
+    gameOverEl.appendChild(playerReady);
+}
+
 function showGameOverEl(winner) {
+    console.log('In gameOverEl', isGameOver);
     const h1 = document.createElement('h1');
     const h2 = document.createElement('h2');
     h2.textContent = 'Are you ready to rock again?'
     const newGameBtn = document.createElement('button');
-
+    newGameBtn.setAttribute('id', 'new-game-btn');
     newGameBtn.textContent = 'New Game';
-    newGameBtn.addEventListener('click', startGame);
+    newGameBtn.addEventListener('click', () => {
+        socket.emit('ready', {replay: true});
+        gameOverEl.removeChild(document.getElementById('new-game-btn'));
+    });
 
     if (winner === 'Player1') {
         h1.textContent = 'Player 1 Wins!';      
@@ -282,7 +295,7 @@ function delay(duration) {
 
 function gameOver() {
     if (score[0] === winningScore || score[1] === winningScore) {
-        delay(300);
+        // delay(5000);
         isGameOver = true;
         let winner = score[0] === winningScore ? 'Player2' : 'Player1';
         socket.emit('gameOver', winner);
@@ -299,11 +312,11 @@ function removeChildNodes(el) {
 function onLoad() {
     createCanvas();
     renderIntro();
-    socket.emit('ready');
+    socket.emit('ready', { replay: false});
 }
 
 function startGame() {
-    console.log(isGameOver, isNewGame)
+    console.log(isGameOver, isNewGame);
     if (isGameOver && !isNewGame) {
         console.log('test', isReferee);
         gameOverEl.hidden = true;
@@ -367,5 +380,9 @@ socket.on('ballMove', (ballData) => {
 });
 
 socket.on('gameOver', (winner) => {
+    isGameOver = true;
     showGameOverEl(winner);
-})
+});
+
+socket.on('playerReady', playerReadyForNewGameDisplay);
+
