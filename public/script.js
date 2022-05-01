@@ -4,7 +4,7 @@
 const { body } = document;
 const canvas = document.createElement('canvas');
 const ctx = canvas.getContext('2d');
-const socket = io('http://localhost:3000');
+const socket = io();
 let isReferee = false;
 const white = "#ecebeb";
 const width = 500;
@@ -41,7 +41,7 @@ let maxSpeed = 6;
 
 //Score
 let score = [0, 0];
-let winningScore = 17;
+let winningScore = 2;
 let isGameOver = false;
 let isNewGame = true;
 
@@ -56,33 +56,33 @@ let pause = false;
 //     speedX = speedY;
 // }
 
-updateBtn.addEventListener('click', () => {
-    const winScore = document.getElementById('winning-score');
-    const speed = document.getElementById('max-speed');
-    if (Number(winScore.value) > 0) {
-        winningScore = Number(winScore.value);
-        score[0] = 0;
-        score[1] = 0;
-        ballReset();
-    };
-    if (Number(speed.value) > 0) {
-        maxSpeed = Number(speed.value);
-        ballReset();
-    };
-});
+// updateBtn.addEventListener('click', () => {
+//     const winScore = document.getElementById('winning-score');
+//     const speed = document.getElementById('max-speed');
+//     if (Number(winScore.value) > 0) {
+//         winningScore = Number(winScore.value);
+//         score[0] = 0;
+//         score[1] = 0;
+//         ballReset();
+//     };
+//     if (Number(speed.value) > 0) {
+//         maxSpeed = Number(speed.value);
+//         ballReset();
+//     };
+// });
 
-defaultBtn.addEventListener('click', () => {
-    winningScore = 7;
-    maxSpeed = 6;
-    ballReset();
-});
+// defaultBtn.addEventListener('click', () => {
+//     winningScore = 7;
+//     maxSpeed = 6;
+//     ballReset();
+// });
 
-pauseBtn.addEventListener('click', () => {
-    if (pause) {
-        pause = false;
-        animate();
-    } else pause = true;
-});
+// pauseBtn.addEventListener('click', () => {
+//     if (pause) {
+//         pause = false;
+//         animate();
+//     } else pause = true;
+// });
 
 //Wait for Opponents:
 function renderIntro() {
@@ -275,7 +275,8 @@ function gameOver() {
         delay(300);
         isGameOver = true;
         let winner = score[0] === winningScore ? 'Player1' : 'Player2';
-        showGameOverEl(winner);
+        socket.emit('gameOver', winner);
+        // showGameOverEl(winner);
     } else isGameOver = false;
 }
 
@@ -299,7 +300,7 @@ function startGame() {
         paddleX[0] = 225;
         paddleX[1] = 225;
         isGameOver = false;
-    }
+    };
     score[0] = 0;
     score[1] = 0;
     isNewGame = false;
@@ -307,6 +308,14 @@ function startGame() {
     animate();
     // window.requestAnimationFrame(animate);
     paddleIndex = isReferee ? 0 : 1;
+
+    //Player Name Display:
+    const playerName = document.createElement('h4');
+    if (paddleIndex) {
+        playerName.textContent = "Player 2 - Ref";
+    } else playerName.textContent = "Player 1";
+    document.getElementById('player-name').appendChild(playerName);
+    
     canvas.addEventListener('mousemove', e => {
         playerMoved = true;
         // console.log(e.clientX);
@@ -349,3 +358,7 @@ socket.on('paddleMove', (paddleData) => {
 socket.on('ballMove', (ballData) => {
     ({ ballX, ballY, score } = ballData);
 });
+
+socket.on('gameOver', (winner) => {
+    showGameOverEl(winner);
+})
