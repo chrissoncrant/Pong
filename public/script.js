@@ -201,7 +201,6 @@ function ballBoundaries() {
         } else if (ballY > height) {
             //Reset Ball, add point to computer:
             ballReset();
-            console.log(score);
             score[1]++;
         }
     }
@@ -244,6 +243,17 @@ function animate() {
     };
 }
 
+function addNameDisplay() {
+    const nameContainer = document.getElementById('player-name');
+    if (!nameContainer.children.length) {
+        const playerName = document.createElement('h4');
+        if (isReferee) {
+            playerName.textContent = "Player 2 - Ref - Bottom";
+        } else playerName.textContent = "Player 1 - Top";
+        document.getElementById('player-name').appendChild(playerName);
+    };
+}
+
 function showGameOverEl(winner) {
     const h1 = document.createElement('h1');
     const h2 = document.createElement('h2');
@@ -274,7 +284,7 @@ function gameOver() {
     if (score[0] === winningScore || score[1] === winningScore) {
         delay(300);
         isGameOver = true;
-        let winner = score[0] === winningScore ? 'Player1' : 'Player2';
+        let winner = score[0] === winningScore ? 'Player2' : 'Player1';
         socket.emit('gameOver', winner);
         // showGameOverEl(winner);
     } else isGameOver = false;
@@ -293,7 +303,9 @@ function onLoad() {
 }
 
 function startGame() {
+    console.log(isGameOver, isNewGame)
     if (isGameOver && !isNewGame) {
+        console.log('test', isReferee);
         gameOverEl.hidden = true;
         removeChildNodes(gameOverEl);
         canvas.hidden = false;
@@ -309,13 +321,8 @@ function startGame() {
     // window.requestAnimationFrame(animate);
     paddleIndex = isReferee ? 0 : 1;
 
-    //Player Name Display:
-    const playerName = document.createElement('h4');
-    if (paddleIndex) {
-        playerName.textContent = "Player 2 - Ref";
-    } else playerName.textContent = "Player 1";
-    document.getElementById('player-name').appendChild(playerName);
-    
+    addNameDisplay();
+
     canvas.addEventListener('mousemove', e => {
         playerMoved = true;
         // console.log(e.clientX);

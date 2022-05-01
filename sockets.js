@@ -26,6 +26,7 @@ function listen(io) {
     
         socket.on('disconnect', (reason) => {
             console.log(`Client ${socket.id} disconnected due to ${reason}`);
+            readyPlayerCount--;
         });
     });
 } 
