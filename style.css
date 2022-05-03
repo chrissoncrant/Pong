@@ -24,6 +24,15 @@ body {
     height: 100vh;
 }
 
+#player-name {
+    position: absolute;
+    color: var(--white);
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    margin-top: 20px;
+}
+
 canvas {
     margin: auto;
     z-index: 10;

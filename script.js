@@ -41,7 +41,7 @@ let maxSpeed = 6;
 
 //Score
 let score = [0, 0];
-let winningScore = 17;
+let winningScore = 1;
 let isGameOver = false;
 let isNewGame = true;
 
@@ -56,33 +56,33 @@ let pause = false;
 //     speedX = speedY;
 // }
 
-updateBtn.addEventListener('click', () => {
-    const winScore = document.getElementById('winning-score');
-    const speed = document.getElementById('max-speed');
-    if (Number(winScore.value) > 0) {
-        winningScore = Number(winScore.value);
-        score[0] = 0;
-        score[1] = 0;
-        ballReset();
-    };
-    if (Number(speed.value) > 0) {
-        maxSpeed = Number(speed.value);
-        ballReset();
-    };
-});
+// updateBtn.addEventListener('click', () => {
+//     const winScore = document.getElementById('winning-score');
+//     const speed = document.getElementById('max-speed');
+//     if (Number(winScore.value) > 0) {
+//         winningScore = Number(winScore.value);
+//         score[0] = 0;
+//         score[1] = 0;
+//         ballReset();
+//     };
+//     if (Number(speed.value) > 0) {
+//         maxSpeed = Number(speed.value);
+//         ballReset();
+//     };
+// });
 
-defaultBtn.addEventListener('click', () => {
-    winningScore = 7;
-    maxSpeed = 6;
-    ballReset();
-});
+// defaultBtn.addEventListener('click', () => {
+//     winningScore = 7;
+//     maxSpeed = 6;
+//     ballReset();
+// });
 
-pauseBtn.addEventListener('click', () => {
-    if (pause) {
-        pause = false;
-        animate();
-    } else pause = true;
-});
+// pauseBtn.addEventListener('click', () => {
+//     if (pause) {
+//         pause = false;
+//         animate();
+//     } else pause = true;
+// });
 
 //Wait for Opponents:
 function renderIntro() {
@@ -94,6 +94,42 @@ function renderIntro() {
     ctx.fillStyle = "white";
     ctx.font = "32px Courier New";
     ctx.fillText("Waiting for opponent...", 20, (canvas.height / 2) - 30);
+}
+
+function removeGameOverMessage() {
+    gameOverEl.hidden = true;
+    removeChildNodes(gameOverEl);
+    canvas.hidden = false;
+    paddleX[0] = 225;
+    paddleX[1] = 225;
+    isGameOver = false;
+}
+
+function runCounter(num) {
+    if (isGameOver && !isNewGame) {
+        removeGameOverMessage();
+    };
+    renderCounter(num--);
+    let interval = setInterval(() => {
+        renderCounter(num--);
+        if (num < 0) { 
+            clearInterval(interval);
+            startGame();
+        };
+    }, 1000);    
+}
+
+function renderCounter(num) {
+    //Canvas Background
+    ctx.fillStyle = "black";
+    ctx.fillRect(0, 0, width, height);
+
+    //Intro Text
+    ctx.fillStyle = "white";
+    ctx.font = "32px Courier New";
+    ctx.textAlign = 'center';
+    ctx.fillText("Game starts in...", canvas.width / 2, (canvas.height / 2) - 48);
+    ctx.fillText(`${num}`, width / 2, height / 2 );
 }
 
 //Render Everything on Canvas:
@@ -201,7 +237,6 @@ function ballBoundaries() {
         } else if (ballY > height) {
             //Reset Ball, add point to computer:
             ballReset();
-            console.log(score);
             score[1]++;
         }
     }
@@ -234,14 +269,31 @@ function animate() {
     if (isReferee) {
         ballMove();
         ballBoundaries();
+        gameOver();    
     };
     renderCanvas();
-    gameOver();
     if (!isGameOver) {
-        if (pause) {
-            cancelAnimationFrame(animate);
-        } else window.requestAnimationFrame(animate);
+        window.requestAnimationFrame(animate);
+    };  
+}
+
+function addNameDisplay() {
+    const nameContainer = document.getElementById('player-name');
+    if (!nameContainer.children.length) {
+        const playerName = document.createElement('h4');
+        if (isReferee) {
+            playerName.textContent = "Player 2 - Ref - Bottom";
+        } else playerName.textContent = "Player 1 - Top";
+        document.getElementById('player-name').appendChild(playerName);
     };
+}
+
+function playerReadyForNewGameDisplay() {
+    const playerReady = document.createElement('h4');
+    if (isReferee) {
+        playerReady.textContent = "Player 1 is ready for a new game!"
+    } else playerReady.textContent = "Player 2 is ready for a new game!";
+    gameOverEl.appendChild(playerReady);
 }
 
 function showGameOverEl(winner) {
@@ -249,9 +301,12 @@ function showGameOverEl(winner) {
     const h2 = document.createElement('h2');
     h2.textContent = 'Are you ready to rock again?'
     const newGameBtn = document.createElement('button');
-
+    newGameBtn.setAttribute('id', 'new-game-btn');
     newGameBtn.textContent = 'New Game';
-    newGameBtn.addEventListener('click', startGame);
+    newGameBtn.addEventListener('click', () => {
+        socket.emit('ready', {replay: true});
+        gameOverEl.removeChild(document.getElementById('new-game-btn'));
+    });
 
     if (winner === 'Player1') {
         h1.textContent = 'Player 1 Wins!';      
@@ -272,10 +327,11 @@ function delay(duration) {
 
 function gameOver() {
     if (score[0] === winningScore || score[1] === winningScore) {
-        delay(300);
+        // delay(5000);
         isGameOver = true;
-        let winner = score[0] === winningScore ? 'Player1' : 'Player2';
-        showGameOverEl(winner);
+        let winner = score[0] === winningScore ? 'Player2' : 'Player1';
+        socket.emit('gameOver', winner);
+        // showGameOverEl(winner);
     } else isGameOver = false;
 }
 
@@ -288,18 +344,18 @@ function removeChildNodes(el) {
 function onLoad() {
     createCanvas();
     renderIntro();
-    socket.emit('ready');
+    socket.emit('ready', { replay: false });
 }
 
 function startGame() {
-    if (isGameOver && !isNewGame) {
-        gameOverEl.hidden = true;
-        removeChildNodes(gameOverEl);
-        canvas.hidden = false;
-        paddleX[0] = 225;
-        paddleX[1] = 225;
-        isGameOver = false;
-    }
+    // if (isGameOver && !isNewGame) {
+    //     gameOverEl.hidden = true;
+    //     removeChildNodes(gameOverEl);
+    //     canvas.hidden = false;
+    //     paddleX[0] = 225;
+    //     paddleX[1] = 225;
+    //     isGameOver = false;
+    // }
     score[0] = 0;
     score[1] = 0;
     isNewGame = false;
@@ -307,6 +363,9 @@ function startGame() {
     animate();
     // window.requestAnimationFrame(animate);
     paddleIndex = isReferee ? 0 : 1;
+
+    addNameDisplay();
+    
     canvas.addEventListener('mousemove', e => {
         playerMoved = true;
         // console.log(e.clientX);
@@ -336,9 +395,8 @@ socket.on('connect', () => {
 });
 
 socket.on('startGame', (refereeId) => {
-    console.log('Referee ID: ', refereeId);
     isReferee = socket.id === refereeId;
-    startGame();
+    runCounter(3);
 });
 
 socket.on('paddleMove', (paddleData) => {
@@ -349,3 +407,10 @@ socket.on('paddleMove', (paddleData) => {
 socket.on('ballMove', (ballData) => {
     ({ ballX, ballY, score } = ballData);
 });
+
+socket.on('gameOver', (winner) => {
+    isGameOver = true;
+    showGameOverEl(winner);
+});
+
+socket.on('playerReady', playerReadyForNewGameDisplay);
