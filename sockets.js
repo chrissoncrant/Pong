@@ -8,7 +8,6 @@ function listen(io) {
             readyPlayerCount++;
             console.log(`Player ${readyPlayerCount} ready`, socket.id);
             if ((readyPlayerCount % 2) && obj.replay) {
-                console.log('test');
                 socket.broadcast.emit('playerReady');
             };
             if (!(readyPlayerCount % 2)) {

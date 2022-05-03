@@ -96,6 +96,30 @@ function renderIntro() {
     ctx.fillText("Waiting for opponent...", 20, (canvas.height / 2) - 30);
 }
 
+function runCounter(num) {
+    console.log('check');
+    let interval = setInterval(() => {
+        renderCounter(num--);
+        console.log(num);
+        if (num === 1) { 
+            clearInterval(interval);
+        };
+    }, 1000);    
+}
+
+function renderCounter(num) {
+    console.log(num);
+    //Canvas Background
+    ctx.fillStyle = "black";
+    ctx.fillRect(0, 0, width, height);
+
+    //Intro Text
+    ctx.fillStyle = "white";
+    ctx.font = "32px Courier New";
+    ctx.fillText("Game starts in...", 20, (canvas.height / 2) - 48);
+    ctx.fillText(`${num}`, width / 2, height / 2 );
+}
+
 //Render Everything on Canvas:
 function renderCanvas() {
     //Canvas Background:
@@ -259,12 +283,10 @@ function playerReadyForNewGameDisplay() {
     if (isReferee) {
         playerReady.textContent = "Player 1 is ready for a new game!"
     } else playerReady.textContent = "Player 2 is ready for a new game!";
-    console.log('Biggie');
     gameOverEl.appendChild(playerReady);
 }
 
 function showGameOverEl(winner) {
-    console.log('In gameOverEl', isGameOver);
     const h1 = document.createElement('h1');
     const h2 = document.createElement('h2');
     h2.textContent = 'Are you ready to rock again?'
@@ -312,13 +334,11 @@ function removeChildNodes(el) {
 function onLoad() {
     createCanvas();
     renderIntro();
-    socket.emit('ready', { replay: false});
+    socket.emit('ready', { replay: false });
 }
 
 function startGame() {
-    console.log(isGameOver, isNewGame);
     if (isGameOver && !isNewGame) {
-        console.log('test', isReferee);
         gameOverEl.hidden = true;
         removeChildNodes(gameOverEl);
         canvas.hidden = false;
@@ -364,8 +384,7 @@ socket.on('connect', () => {
     console.log(`Connected as ${socket.id}`)
 });
 
-socket.on('startGame', (refereeId) => {
-    console.log('Referee ID: ', refereeId);
+socket.on('startGame', async (refereeId) => {
     isReferee = socket.id === refereeId;
     startGame();
 });
