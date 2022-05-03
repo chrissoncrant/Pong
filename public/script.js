@@ -96,18 +96,36 @@ function renderIntro() {
     ctx.fillText("Waiting for opponent...", 20, (canvas.height / 2) - 30);
 }
 
+function removeGameOverMessage() {
+        gameOverEl.hidden = true;
+        removeChildNodes(gameOverEl);
+        canvas.hidden = false;
+        paddleX[0] = 225;
+        paddleX[1] = 225;
+        isGameOver = false;
+};
+
 function runCounter(num) {
-    console.log('check');
+    console.log(isGameOver, isNewGame);
+    if (isGameOver && !isNewGame) {
+        removeGameOverMessage();
+    };
+    console.log('starting...')
+    renderCounter(num--);
     let interval = setInterval(() => {
+        console.log('Interval`', num);
         renderCounter(num--);
-        console.log(num);
-        if (num === 1) { 
+        console.log('post', num)
+        if (num < 0) { 
+            console.log('going');
             clearInterval(interval);
+            startGame();
         };
     }, 1000);    
 }
 
 function renderCounter(num) {
+    
     console.log(num);
     //Canvas Background
     ctx.fillStyle = "black";
@@ -116,7 +134,8 @@ function renderCounter(num) {
     //Intro Text
     ctx.fillStyle = "white";
     ctx.font = "32px Courier New";
-    ctx.fillText("Game starts in...", 20, (canvas.height / 2) - 48);
+    ctx.textAlign = 'center';
+    ctx.fillText("Game starts in...", canvas.width / 2, (canvas.height / 2) - 48);
     ctx.fillText(`${num}`, width / 2, height / 2 );
 }
 
@@ -338,14 +357,14 @@ function onLoad() {
 }
 
 function startGame() {
-    if (isGameOver && !isNewGame) {
-        gameOverEl.hidden = true;
-        removeChildNodes(gameOverEl);
-        canvas.hidden = false;
-        paddleX[0] = 225;
-        paddleX[1] = 225;
-        isGameOver = false;
-    };
+    // if (isGameOver && !isNewGame) {
+    //     gameOverEl.hidden = true;
+    //     removeChildNodes(gameOverEl);
+    //     canvas.hidden = false;
+    //     paddleX[0] = 225;
+    //     paddleX[1] = 225;
+    //     isGameOver = false;
+    // };
     score[0] = 0;
     score[1] = 0;
     isNewGame = false;
@@ -384,9 +403,9 @@ socket.on('connect', () => {
     console.log(`Connected as ${socket.id}`)
 });
 
-socket.on('startGame', async (refereeId) => {
+socket.on('startGame', (refereeId) => {
     isReferee = socket.id === refereeId;
-    startGame();
+    runCounter(3);
 });
 
 socket.on('paddleMove', (paddleData) => {
