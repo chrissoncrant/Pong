@@ -41,7 +41,7 @@ let maxSpeed = 6;
 
 //Score
 let score = [0, 0];
-let winningScore = 1;
+let winningScore = 7;
 let isGameOver = false;
 let isNewGame = true;
 
@@ -106,18 +106,13 @@ function removeGameOverMessage() {
 };
 
 function runCounter(num) {
-    console.log(isGameOver, isNewGame);
     if (isGameOver && !isNewGame) {
         removeGameOverMessage();
     };
-    console.log('starting...')
     renderCounter(num--);
     let interval = setInterval(() => {
-        console.log('Interval`', num);
         renderCounter(num--);
-        console.log('post', num)
         if (num < 0) { 
-            console.log('going');
             clearInterval(interval);
             startGame();
         };
@@ -125,8 +120,6 @@ function runCounter(num) {
 }
 
 function renderCounter(num) {
-    
-    console.log(num);
     //Canvas Background
     ctx.fillStyle = "black";
     ctx.fillRect(0, 0, width, height);
