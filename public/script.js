@@ -41,7 +41,7 @@ let maxSpeed = 6;
 
 //Score
 let score = [0, 0];
-let winningScore = 7;
+let winningScore = 1;
 let isGameOver = false;
 let isNewGame = true;
 
@@ -291,6 +291,7 @@ function addNameDisplay() {
 }
 
 function playerReadyForNewGameDisplay() {
+    console.log('check');
     const playerReady = document.createElement('h4');
     if (isReferee) {
         playerReady.textContent = "Player 1 is ready for a new game!"
@@ -415,5 +416,7 @@ socket.on('gameOver', (winner) => {
     showGameOverEl(winner);
 });
 
-socket.on('playerReady', playerReadyForNewGameDisplay);
+socket.on('playerReady', () => {
+    console.log('received');
+});
 

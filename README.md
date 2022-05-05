@@ -15,3 +15,5 @@ multiplayer enabled using express to server both front and backend
 building on express-multiplayer by adding a namespace
 ### practice
 practice branch for rebuilding the express server portion (will be deleted)
+### rooms
+building on namespace by adding rooms so multiple instances of multiplayer Pong is possible.
