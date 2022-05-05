@@ -4,7 +4,7 @@
 const { body } = document;
 const canvas = document.createElement('canvas');
 const ctx = canvas.getContext('2d');
-const socket = io('http://localhost:3000');
+const socket = io();
 let isReferee = false;
 const white = "#ecebeb";
 const width = 500;
