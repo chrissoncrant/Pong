@@ -1,7 +1,9 @@
 let readyPlayerCount = 0;
 
-function listen(io) {
-    io.on('connection', (socket) => {
+function listen(io) {  
+    const pongNamespace = io.of('/pong');
+    
+    pongNamespace.on('connection', (socket) => {
         console.log(`user connected as ${socket.id}`);
     
         socket.on('ready', (obj) => {
@@ -11,7 +13,7 @@ function listen(io) {
                 socket.broadcast.emit('playerReady');
             };
             if (!(readyPlayerCount % 2)) {
-                io.emit('startGame', socket.id);
+                pongNamespace.emit('startGame', socket.id);
             };
         });
     
@@ -24,14 +26,14 @@ function listen(io) {
         });
 
         socket.on('gameOver', (winner) => {
-            io.emit('gameOver', winner);
+            pongNamespace.emit('gameOver', winner);
         } )
     
         socket.on('disconnect', (reason) => {
             console.log(`Client ${socket.id} disconnected due to ${reason}`);
         });
     });
-} 
+}
 
 module.exports = {
     listen,
