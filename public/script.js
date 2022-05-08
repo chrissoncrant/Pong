@@ -269,8 +269,7 @@ function animate() {
     if (isReferee) {
         ballMove();
         ballBoundaries();
-        gameOver();
-        
+        gameOver();   
     };
     renderCanvas();
     if (!isGameOver) {
@@ -291,7 +290,6 @@ function addNameDisplay() {
 }
 
 function playerReadyForNewGameDisplay() {
-    console.log('check');
     const playerReady = document.createElement('h4');
     if (isReferee) {
         playerReady.textContent = "Player 1 is ready for a new game!"
@@ -330,11 +328,10 @@ function delay(duration) {
 
 function gameOver() {
     if (score[0] === winningScore || score[1] === winningScore) {
-        // delay(5000);
+        delay(500);
         isGameOver = true;
         let winner = score[0] === winningScore ? 'Player2' : 'Player1';
         socket.emit('gameOver', winner);
-        // showGameOverEl(winner);
     } else isGameOver = false;
 }
 
@@ -416,7 +413,5 @@ socket.on('gameOver', (winner) => {
     showGameOverEl(winner);
 });
 
-socket.on('playerReady', () => {
-    console.log('received');
-});
+socket.on('playerReady', playerReadyForNewGameDisplay);
 

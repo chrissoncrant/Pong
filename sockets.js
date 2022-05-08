@@ -9,16 +9,19 @@ function listen(io) {
         let room;
     
         socket.on('ready', (obj) => {
-            room = `room ${Math.floor(readyPlayerCount / 2)}`;
-            socket.join(room);
+            if (!obj.replay) {
+                room = `room ${Math.floor(readyPlayerCount / 2)}`;
+                socket.join(room);
+            }
 
             readyPlayerCount++;
             console.log(`Player ${readyPlayerCount} ready in ${room}`, socket.id);
+
+
             if ((readyPlayerCount % 2) && obj.replay) {
-                console.log('check')
-                //Need to send this message to previous room, or figure out a better place to put this event to emit. The problem is that when New Game button is clicked it adds the player to a new room before it emits this event and so the other player doesn't get the message.
                 socket.to(room).emit('playerReady');
             };
+            
             if (!(readyPlayerCount % 2)) {
                 pongNamespace.in(room).emit('startGame', socket.id);
             };
