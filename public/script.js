@@ -105,19 +105,6 @@ function removeGameOverMessage() {
         isGameOver = false;
 };
 
-function runCounter(num) {
-    if (isGameOver && !isNewGame) {
-        removeGameOverMessage();
-    };
-    renderCounter(num--);
-    let interval = setInterval(() => {
-        renderCounter(num--);
-        if (num < 0) { 
-            clearInterval(interval);
-            startGame();
-        };
-    }, 1000);    
-}
 
 function renderCounter(num) {
     //Canvas Background
@@ -220,7 +207,7 @@ function ballBoundaries() {
         speedX = -speedX
     }
 
-    //Bounce off player paddle:
+    //Bounce off player 2 paddle:
     if (ballY > height - paddleDiff) {
         if (ballX >= paddleX[0] && ballX <= paddleX[0] + paddleWidth) {
             //Add speed on hit: 
@@ -235,13 +222,13 @@ function ballBoundaries() {
             trajectoryX[0] = ballX - (paddleX[0] + paddleDiff);
             speedX = trajectoryX[0] * 0.3;
         } else if (ballY > height) {
-            //Reset Ball, add point to computer:
+            //Reset Ball, add point to player 1:
             ballReset();
             score[1]++;
         }
     }
     
-    //Bounce off computer's paddle:
+    //Bounce off player 1's paddle:
     if (ballY < paddleDiff) {
         if (ballX > paddleX[1] && ballX < paddleX[1] + paddleWidth) {
             //add speed on hit:
@@ -257,7 +244,7 @@ function ballBoundaries() {
             speedX = trajectoryX[1] * 0.3;
         } else if (ballY < 0) {
             ballDirection = -ballDirection;
-            //Reset Ball and add to Player score:
+            //Reset Ball and add to player 2 score:
             ballReset();
             score[0]++;
         }
@@ -275,7 +262,6 @@ function animate() {
     if (!isGameOver) {
         window.requestAnimationFrame(animate);
     };
-    
 }
 
 function addNameDisplay() {
@@ -347,6 +333,20 @@ function onLoad() {
     socket.emit('ready', { replay: false });
 }
 
+function runCounter(num) {
+    if (isGameOver && !isNewGame) {
+        removeGameOverMessage();
+    };
+    renderCounter(num--);
+    let interval = setInterval(() => {
+        renderCounter(num--);
+        if (num < 0) { 
+            clearInterval(interval);
+            startGame();
+        };
+    }, 1000);    
+}
+
 function startGame() {
     // if (isGameOver && !isNewGame) {
     //     gameOverEl.hidden = true;
@@ -363,11 +363,12 @@ function startGame() {
     animate();
     // window.requestAnimationFrame(animate);
     paddleIndex = isReferee ? 0 : 1;
+    playerMoved = true;
 
     addNameDisplay();
 
     canvas.addEventListener('mousemove', e => {
-        playerMoved = true;
+        
         // console.log(e.clientX);
         // console.log(window.innerWidth);
         //We want to control the paddle from the middle of the paddle
