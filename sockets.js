@@ -21,17 +21,15 @@ function listen(io) {
             if (obj.replay) {
                 newGameCount++;
                 if (newGameCount === 1) {
-                    console.log('check')
                     socket.to(room).emit('playerReady');
                 };
             };
 
-            // if ((readyPlayerCount % 2) && obj.replay) {
-            //     socket.to(room).emit('playerReady');
-            // };
-
             if (!(readyPlayerCount % 2) && !obj.replay) {
-                pongNamespace.in(room).emit('startGame', socket.id);
+                pongNamespace.in(room).emit('startGame', {
+                    newGame: true,
+                    id: socket.id
+                });
             } else if (newGameCount === 2) {
                 pongNamespace.in(room).emit('startGame', socket.id);
                 newGameCount = 0;

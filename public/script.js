@@ -394,8 +394,10 @@ socket.on('connect', () => {
     console.log(`Connected as ${socket.id}`)
 });
 
-socket.on('startGame', (refereeId) => {
-    isReferee = socket.id === refereeId;
+socket.on('startGame', ({ newGame, id }) => {
+    if (newGame) {
+        isReferee = socket.id === id;
+    }
     runCounter(3);
 });
 
