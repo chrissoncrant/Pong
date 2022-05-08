@@ -1,4 +1,5 @@
 let readyPlayerCount = 0;
+let newGameCount = 0;
 
 function listen(io) {  
     const pongNamespace = io.of('/pong');
@@ -7,24 +8,34 @@ function listen(io) {
         console.log(`user connected as ${socket.id}`);
 
         let room;
-    
+
         socket.on('ready', (obj) => {
+            //Set room if it is a new game:
             if (!obj.replay) {
                 room = `room ${Math.floor(readyPlayerCount / 2)}`;
                 socket.join(room);
-            }
-
-            readyPlayerCount++;
-            console.log(`Player ${readyPlayerCount} ready in ${room}`, socket.id);
-
-
-            if ((readyPlayerCount % 2) && obj.replay) {
-                socket.to(room).emit('playerReady');
+                readyPlayerCount++;
+                console.log(`Player ${readyPlayerCount} ready in ${room}`, socket.id);
             };
-            
-            if (!(readyPlayerCount % 2)) {
+
+            if (obj.replay) {
+                newGameCount++;
+                if (newGameCount === 1) {
+                    console.log('check')
+                    socket.to(room).emit('playerReady');
+                };
+            };
+
+            // if ((readyPlayerCount % 2) && obj.replay) {
+            //     socket.to(room).emit('playerReady');
+            // };
+
+            if (!(readyPlayerCount % 2) && !obj.replay) {
                 pongNamespace.in(room).emit('startGame', socket.id);
-            };
+            } else if (newGameCount === 2) {
+                pongNamespace.in(room).emit('startGame', socket.id);
+                newGameCount = 0;
+            }
         });
     
         socket.on('paddleMove', (paddleData) => {
