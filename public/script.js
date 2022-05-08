@@ -9,9 +9,9 @@ let isReferee = false;
 const white = "#ecebeb";
 const width = 500;
 const height = 700;
-const screenWidth = window.innerWidth;
+let screenWidth = window.innerWidth;
 //canvasPosition is the x = 0 point of the canvas relative to the screen width
-const canvasPosition = screenWidth / 2 - width / 2;
+let canvasPosition = screenWidth / 2 - width / 2;
 const isMobile = window.matchMedia('(max-width: 600px)');
 const gameOverEl = document.createElement('div');
 gameOverEl.setAttribute('id', 'game-over');
@@ -334,6 +334,13 @@ function onLoad() {
 }
 
 function runCounter(num) {
+    //readjust window width if browser window changed size:
+    if (window.innerWidth != screenWidth) {
+        console.log('Size change!');
+        screenWidth = window.innerWidth;
+        canvasPosition = screenWidth / 2 - width / 2;
+    }
+    
     if (isGameOver && !isNewGame) {
         removeGameOverMessage();
     };
