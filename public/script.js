@@ -93,7 +93,8 @@ function renderIntro() {
     //Intro Text
     ctx.fillStyle = "white";
     ctx.font = "32px Courier New";
-    ctx.fillText("Waiting for opponent...", 20, (canvas.height / 2) - 30);
+    ctx.textAlign = 'center';
+    ctx.fillText("Waiting for opponent...", canvas.width / 2, (canvas.height / 2) - 30);
 }
 
 function removeGameOverMessage() {
@@ -280,19 +281,25 @@ function playerReadyForNewGameDisplay() {
     if (isReferee) {
         playerReady.textContent = "Player 1 is ready for a new game!"
     } else playerReady.textContent = "Player 2 is ready for a new game!";
-    gameOverEl.appendChild(playerReady);
+    playerReady.style.color = 'green';
+    gameOverEl.insertBefore(playerReady, document.getElementById('play-again-text'));
 }
 
 function showGameOverEl(winner) {
     const h1 = document.createElement('h1');
     const h2 = document.createElement('h2');
-    h2.textContent = 'Are you ready to rock again?'
+    h2.textContent = 'Play again?';
+    h2.setAttribute('id', 'play-again-text');
     const newGameBtn = document.createElement('button');
     newGameBtn.setAttribute('id', 'new-game-btn');
     newGameBtn.textContent = 'New Game';
     newGameBtn.addEventListener('click', () => {
         socket.emit('ready', {replay: true});
         gameOverEl.removeChild(document.getElementById('new-game-btn'));
+        gameOverEl.removeChild(document.getElementById('play-again-text'));
+        const waiting = document.createElement('h2');
+        waiting.textContent = "Waiting for other player..."
+        gameOverEl.appendChild(waiting);
     });
 
     if (winner === 'Player1') {

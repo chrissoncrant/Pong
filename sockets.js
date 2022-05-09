@@ -15,12 +15,17 @@ function listen(io) {
                 room = `room ${Math.floor(readyPlayerCount / 2)}`;
                 socket.join(room);
                 readyPlayerCount++;
+                newGameCount = 0;
                 console.log(`Player ${readyPlayerCount} ready in ${room}`, socket.id);
             };
 
             if (obj.replay) {
+                console.log(newGameCount);
                 newGameCount++;
+                console.log('1');
+                console.log(newGameCount);
                 if (newGameCount === 1) {
+                    console.log('2');
                     socket.to(room).emit('playerReady');
                 };
             };
