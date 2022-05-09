@@ -20,12 +20,8 @@ function listen(io) {
             };
 
             if (obj.replay) {
-                console.log(newGameCount);
                 newGameCount++;
-                console.log('1');
-                console.log(newGameCount);
                 if (newGameCount === 1) {
-                    console.log('2');
                     socket.to(room).emit('playerReady');
                 };
             };
