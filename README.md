@@ -1,5 +1,7 @@
 # Pong
 
+Accessible at: 54.219.243.98:3000
+
 ## Branches:
 This project has many branches as it is helpful for me to track the progression and practice. It is merely for my own convenience. 
 
