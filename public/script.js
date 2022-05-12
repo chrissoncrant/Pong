@@ -41,7 +41,7 @@ let maxSpeed = 6;
 
 //Score
 let score = [0, 0];
-let winningScore = 1;
+let winningScore = 7;
 let isGameOver = false;
 let isNewGame = true;
 
